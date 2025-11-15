@@ -72,3 +72,67 @@
 #endif
 
 #include "pins_MKS_ROBIN_NANO_V3_common.h"
+
+//
+// === Easythreed K7 Custom Pins ===
+//
+
+// ---- HOMING BUTTON ----
+#define BUTTON_HOME_PIN PE7
+#define BUTTON_HOME_STATE LOW
+
+// ---- MAIN FUNCTION BUTTON ----
+#define BUTTON_MAIN_PIN PE6
+#define BUTTON_MAIN_STATE LOW
+
+// ---- MAIN LED (green) ----
+#define MAIN_LED_PIN PB2
+#define MAIN_LED_INVERTED false
+
+// ---- LEVELLING BUTTONS ----
+#define BUTTON4_PIN PA15   // yellow
+#define BUTTON5_PIN PD2    // white
+#define BUTTON6_PIN PC8    // red
+#define BUTTON7_PIN PC4    // black
+
+#define BUTTON4_HIT_STATE LOW
+#define BUTTON5_HIT_STATE LOW
+#define BUTTON6_HIT_STATE LOW
+#define BUTTON7_HIT_STATE LOW
+
+// Levelling actions
+#define BUTTON4_GCODE "G0 Z5\nG0 X0 Y0\nG0 Z0"
+#define BUTTON5_GCODE "G0 Z5\nG0 X100 Y0\nG0 Z0"
+#define BUTTON6_GCODE "G0 Z5\nG0 X100 Y100\nG0 Z0"
+#define BUTTON7_GCODE "G0 Z5\nG0 X0 Y100\nG0 Z0"
+
+#define BUTTON4_DESC "Levelling button 1"
+#define BUTTON5_DESC "Levelling button 2"
+#define BUTTON6_DESC "Levelling button 3"
+#define BUTTON7_DESC "Levelling button 4"
+
+
+// ---- FEED / NORMAL / RETRACT SWITCH ----
+#define FEED_SWITCH_PIN     PA6
+#define NORMAL_SWITCH_PIN   PA7
+#define RETRACT_SWITCH_PIN  PE10
+#define RESERVE_SWITCH_PIN  PE12   // spare or diagnostic
+
+// Enable pullups
+SET_INPUT_PULLUP(FEED_SWITCH_PIN);
+SET_INPUT_PULLUP(NORMAL_SWITCH_PIN);
+SET_INPUT_PULLUP(RETRACT_SWITCH_PIN);
+SET_INPUT_PULLUP(RESERVE_SWITCH_PIN);
+
+//
+// Placeholder handlers – you’ll implement logic later
+//
+inline void handle_feed()    {}
+inline void handle_normal()  {}
+inline void handle_retract() {}
+
+inline void poll_feed_switch() {
+  if (!READ(FEED_SWITCH_PIN))      handle_feed();
+  else if (!READ(NORMAL_SWITCH_PIN))  handle_normal();
+  else if (!READ(RETRACT_SWITCH_PIN)) handle_retract();
+}

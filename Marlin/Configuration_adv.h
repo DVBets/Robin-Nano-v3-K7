@@ -2689,7 +2689,7 @@
   #endif
 
   #if AXIS_IS_TMC(E0)
-    #define E0_CURRENT      800
+    #define E0_CURRENT      400       // Reduce current for the small 24BYJ28 geared extruder motor
     #define E0_MICROSTEPS    16
     #define E0_RSENSE         0.11
     #define E0_CHAIN_POS     -1
@@ -3792,30 +3792,38 @@
  * User-defined buttons to run custom G-code.
  * Up to 25 may be defined.
  */
-//#define CUSTOM_USER_BUTTONS
+#define CUSTOM_USER_BUTTONS
 #if ENABLED(CUSTOM_USER_BUTTONS)
-  //#define BUTTON1_PIN -1
+  #define BUTTON1_PIN BUTTON_HOME_PIN
   #if PIN_EXISTS(BUTTON1)
-    #define BUTTON1_HIT_STATE     LOW       // State of the triggered button. NC=LOW. NO=HIGH.
-    #define BUTTON1_WHEN_PRINTING false     // Button allowed to trigger during printing?
+    #define BUTTON1_HIT_STATE     BUTTON_HOME_STATE
+    #define BUTTON1_WHEN_PRINTING false
     #define BUTTON1_GCODE         "G28"
-    #define BUTTON1_DESC          "Homing"  // Optional string to set the LCD status
+    #define BUTTON1_DESC          "Home"  // Optional string to set the LCD status
   #endif
 
-  //#define BUTTON2_PIN -1
+  #define BUTTON2_PIN BUTTON_MAIN_PIN
   #if PIN_EXISTS(BUTTON2)
-    #define BUTTON2_HIT_STATE     LOW
+    #define BUTTON2_HIT_STATE     BUTTON_MAIN_STATE
     #define BUTTON2_WHEN_PRINTING false
-    #define BUTTON2_GCODE         "M140 S" STRINGIFY(PREHEAT_1_TEMP_BED) "\nM104 S" STRINGIFY(PREHEAT_1_TEMP_HOTEND)
-    #define BUTTON2_DESC          "Preheat for " PREHEAT_1_LABEL
+    #define BUTTON2_GCODE         "M117 Main button"
+    #define BUTTON2_DESC          "Main button"
   #endif
 
-  //#define BUTTON3_PIN -1
-  #if PIN_EXISTS(BUTTON3)
-    #define BUTTON3_HIT_STATE     LOW
-    #define BUTTON3_WHEN_PRINTING false
-    #define BUTTON3_GCODE         "M140 S" STRINGIFY(PREHEAT_2_TEMP_BED) "\nM104 S" STRINGIFY(PREHEAT_2_TEMP_HOTEND)
-    #define BUTTON3_DESC          "Preheat for " PREHEAT_2_LABEL
+  #if PIN_EXISTS(BUTTON4)
+    #define BUTTON4_WHEN_PRINTING false
+  #endif
+
+  #if PIN_EXISTS(BUTTON5)
+    #define BUTTON5_WHEN_PRINTING false
+  #endif
+
+  #if PIN_EXISTS(BUTTON6)
+    #define BUTTON6_WHEN_PRINTING false
+  #endif
+
+  #if PIN_EXISTS(BUTTON7)
+    #define BUTTON7_WHEN_PRINTING false
   #endif
 #endif
 
