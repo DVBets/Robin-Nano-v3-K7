@@ -109,6 +109,9 @@ void HAL_idletask() {
     CDC_resume_receive();
     CDC_continue_transmit();
   #endif
+  #ifdef HAS_K7_FEED_SWITCH
+    poll_feed_switch();
+  #endif
 }
 
 void HAL_clear_reset_source() { __HAL_RCC_CLEAR_RESET_FLAGS(); }
