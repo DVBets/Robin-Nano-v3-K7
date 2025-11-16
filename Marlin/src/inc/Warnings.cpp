@@ -36,7 +36,7 @@
 #endif
 
 #if NONE(HAS_RESUME_CONTINUE, HOST_PROMPT_SUPPORT)
-  #warning "Your Configuration provides no method to acquire user feedback!"
+  // #warning "Your Configuration provides no method to acquire user feedback!"
 #endif
 
 #if AUTO_ASSIGNED_X2_STEPPER
