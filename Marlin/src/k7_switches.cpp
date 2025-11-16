@@ -5,6 +5,16 @@
 
 #if BOTH(CUSTOM_K7_SWITCHES, K7_SWITCH_LOGIC)
 
+#ifndef FEED_SWITCH_PIN
+  #error "CUSTOM_K7_SWITCHES requires FEED_SWITCH_PIN"
+#endif
+#ifndef NORMAL_SWITCH_PIN
+  #error "CUSTOM_K7_SWITCHES requires NORMAL_SWITCH_PIN"
+#endif
+#ifndef RETRACT_SWITCH_PIN
+  #error "CUSTOM_K7_SWITCHES requires RETRACT_SWITCH_PIN"
+#endif
+
 void handle_feed_mode() {
   // TODO: implement feed mode behavior
 }
@@ -22,10 +32,18 @@ void handle_switch_idle() {
 }
 
 void k7_switches_init() {
-  SET_INPUT_PULLUP(FEED_SWITCH_PIN);
-  SET_INPUT_PULLUP(NORMAL_SWITCH_PIN);
-  SET_INPUT_PULLUP(RETRACT_SWITCH_PIN);
-  SET_INPUT_PULLUP(RESERVE_SWITCH_PIN);
+  #if PIN_EXISTS(FEED_SWITCH)
+    SET_INPUT_PULLUP(FEED_SWITCH_PIN);
+  #endif
+  #if PIN_EXISTS(NORMAL_SWITCH)
+    SET_INPUT_PULLUP(NORMAL_SWITCH_PIN);
+  #endif
+  #if PIN_EXISTS(RETRACT_SWITCH)
+    SET_INPUT_PULLUP(RETRACT_SWITCH_PIN);
+  #endif
+  #if PIN_EXISTS(RESERVE_SWITCH)
+    SET_INPUT_PULLUP(RESERVE_SWITCH_PIN);
+  #endif
 }
 
 void k7_switches_task() {
