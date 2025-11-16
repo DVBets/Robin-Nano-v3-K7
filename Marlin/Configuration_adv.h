@@ -3786,7 +3786,14 @@
   //#define CONFIG_MENU_ITEM_5_DESC "Wifi ????"
   //#define CONFIG_MENU_ITEM_5_GCODE "M118 ????"
   //#define CONFIG_MENU_ITEM_5_CONFIRM
-#endif
+  #endif
+
+  // Easythreed K7 three-position switch logic
+  #define K7_SWITCH_LOGIC
+
+  #if ENABLED(K7_SWITCH_LOGIC) && DISABLED(CUSTOM_K7_SWITCHES)
+    #error "K7_SWITCH_LOGIC requires CUSTOM_K7_SWITCHES in Configuration.h"
+  #endif
 
 /**
  * User-defined buttons to run custom G-code.

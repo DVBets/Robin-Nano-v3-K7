@@ -142,6 +142,9 @@
   #define MOTHERBOARD BOARD_MKS_ROBIN_NANO_V3
 #endif
 
+// Easythreed K7-specific helpers
+#define CUSTOM_K7_SWITCHES
+
 // Name displayed in the LCD "Ready" message and Info menu
 #define CUSTOM_MACHINE_NAME "Easythreed K7 (Robin Nano V3.1)"
 

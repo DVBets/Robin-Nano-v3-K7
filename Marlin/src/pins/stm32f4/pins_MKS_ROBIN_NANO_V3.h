@@ -111,28 +111,10 @@
 #define BUTTON6_DESC "Levelling button 3"
 #define BUTTON7_DESC "Levelling button 4"
 
-
-// ---- FEED / NORMAL / RETRACT SWITCH ----
-#define FEED_SWITCH_PIN     PA6
-#define NORMAL_SWITCH_PIN   PA7
-#define RETRACT_SWITCH_PIN  PE10
-#define RESERVE_SWITCH_PIN  PE12   // spare or diagnostic
-
-// Enable pullups
-SET_INPUT_PULLUP(FEED_SWITCH_PIN);
-SET_INPUT_PULLUP(NORMAL_SWITCH_PIN);
-SET_INPUT_PULLUP(RETRACT_SWITCH_PIN);
-SET_INPUT_PULLUP(RESERVE_SWITCH_PIN);
-
-//
-// Placeholder handlers – you’ll implement logic later
-//
-inline void handle_feed()    {}
-inline void handle_normal()  {}
-inline void handle_retract() {}
-
-inline void poll_feed_switch() {
-  if (!READ(FEED_SWITCH_PIN))      handle_feed();
-  else if (!READ(NORMAL_SWITCH_PIN))  handle_normal();
-  else if (!READ(RETRACT_SWITCH_PIN)) handle_retract();
-}
+#if ENABLED(CUSTOM_K7_SWITCHES)
+  // ---- FEED / NORMAL / RETRACT SWITCH ----
+  #define FEED_SWITCH_PIN     PA6
+  #define NORMAL_SWITCH_PIN   PA7
+  #define RETRACT_SWITCH_PIN  PE10
+  #define RESERVE_SWITCH_PIN  PE12   // spare or diagnostic
+#endif

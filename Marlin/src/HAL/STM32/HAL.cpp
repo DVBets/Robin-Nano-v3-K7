@@ -28,6 +28,7 @@
 #include "usb_serial.h"
 
 #include "../../inc/MarlinConfig.h"
+#include "../../k7_switches.h"
 #include "../shared/Delay.h"
 
 #ifdef USBCON
@@ -103,6 +104,10 @@ void HAL_init() {
     OUT_WRITE(USB_CONNECT_PIN, !USB_CONNECT_INVERTING); // USB clear connection
     delay(1000);                                        // Give OS time to notice
     WRITE(USB_CONNECT_PIN, USB_CONNECT_INVERTING);
+  #endif
+  
+  #if BOTH(CUSTOM_K7_SWITCHES, K7_SWITCH_LOGIC)
+    k7_switches_init();
   #endif
 }
 
