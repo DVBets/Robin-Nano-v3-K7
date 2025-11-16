@@ -28,7 +28,6 @@
 #include "usb_serial.h"
 
 #include "../../inc/MarlinConfig.h"
-#include "../../k7_switches.h"
 #include "../shared/Delay.h"
 
 #ifdef USBCON
@@ -78,10 +77,6 @@ void HAL_init() {
     OUT_WRITE(LED_PIN, LOW);
   #endif
 
-  #ifdef HAS_K7_FEED_SWITCH
-    setup_k7_feed_switch_pins();
-  #endif
-
   #if ENABLED(SRAM_EEPROM_EMULATION)
     __HAL_RCC_PWR_CLK_ENABLE();
     HAL_PWR_EnableBkUpAccess();           // Enable access to backup SRAM
@@ -105,10 +100,6 @@ void HAL_init() {
     delay(1000);                                        // Give OS time to notice
     WRITE(USB_CONNECT_PIN, USB_CONNECT_INVERTING);
   #endif
-  
-  #if BOTH(CUSTOM_K7_SWITCHES, K7_SWITCH_LOGIC)
-    k7_switches_init();
-  #endif
 }
 
 // HAL idle task
@@ -117,9 +108,6 @@ void HAL_idletask() {
     // Stm32duino currently doesn't have a "loop/idle" method
     CDC_resume_receive();
     CDC_continue_transmit();
-  #endif
-  #ifdef HAS_K7_FEED_SWITCH
-    poll_feed_switch();
   #endif
 }
 
