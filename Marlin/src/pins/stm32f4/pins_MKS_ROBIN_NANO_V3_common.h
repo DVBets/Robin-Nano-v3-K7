@@ -29,7 +29,7 @@
 // #define MKS_TEST
 
 // USB Flash Drive support
-#define HAS_OTG_USB_HOST_SUPPORT
+//#define HAS_OTG_USB_HOST_SUPPORT
 
 // Avoid conflict with TIMER_TONE
 #define STEP_TIMER                            10
@@ -69,10 +69,17 @@
 #define E1_DIAG_PIN                         PE7
 #endif
 
-#define X_STOP_PIN                    X_DIAG_PIN
-#define Y_STOP_PIN                    Y_DIAG_PIN
-#define Z_MIN_PIN                     Z_DIAG_PIN
-#define Z_MAX_PIN                    E0_DIAG_PIN
+//#define X_STOP_PIN                    X_DIAG_PIN
+//#define Y_STOP_PIN                    Y_DIAG_PIN
+//#define Z_MIN_PIN                     Z_DIAG_PIN
+//#define Z_MAX_PIN                    E0_DIAG_PIN
+#undef  X_STOP_PIN
+#undef  Y_STOP_PIN
+#undef  Z_MIN_PIN
+
+#define X_STOP_PIN PA15
+#define Y_STOP_PIN PD2
+#define Z_MIN_PIN  PC8
 
 //
 // Steppers

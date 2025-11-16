@@ -38,24 +38,16 @@
 //
 // FULL LCD / UI DISABLE FOR ROBIN NANO V3.x
 //
-#undef EXTENSIBLE_UI
+#define NO_CONTROLLER
+
 #undef TOUCH_UI_FTDI_EVE
-#undef FTDI_EVE_SUPPORT
-#undef HAS_TFT_LVGL_UI
-#undef DGUS_LCD_UI_MKS
-#undef DGUS_LCD_UI_RELOADED
-#undef DGUS_LCD_UI_FYSETC
 #undef MKS_UI
-#undef TOUCH_SCREEN
-#undef HAVE_TOUCHPAD
-#undef HAS_SPI_FLASH
-#undef MKS_ROBIN_TFT
 #undef TFT_LVGL_UI
 #undef TFT_CLASSIC_UI
 #undef TFT_COLOR_UI
-#undef TFT_GENERIC
-   
-#define NO_CONTROLLER     // <-- ВАЖНО: Полное отключение LCD
+#undef EXTENSIBLE_UI
+#undef HAS_TFT_LVGL_UI
+#undef MKS_ROBIN_TFT
 
 
 #define CONFIGURATION_H_VERSION 02000902
