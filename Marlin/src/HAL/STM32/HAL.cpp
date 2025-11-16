@@ -77,6 +77,10 @@ void HAL_init() {
     OUT_WRITE(LED_PIN, LOW);
   #endif
 
+  #ifdef HAS_K7_FEED_SWITCH
+    setup_k7_feed_switch_pins();
+  #endif
+
   #if ENABLED(SRAM_EEPROM_EMULATION)
     __HAL_RCC_PWR_CLK_ENABLE();
     HAL_PWR_EnableBkUpAccess();           // Enable access to backup SRAM
