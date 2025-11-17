@@ -552,47 +552,49 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
 
         if (PENDING(ms, print_key_time + BTN_PRINT_SHORT_MS - BTN_PRINT_DEBOUNCE_MS)) {
           switch (print_key_flag) {
-            case PF_START:
+            case PF_START: {
               if (printingIsActive()) break;
-
+    
               set_print_led_mode(PRINT_LED_BLINK_SLOW);
               print_key_flag = PF_PAUSE;
-
+    
               card.mount();
               if (!card.isMounted()) {
                 set_print_led_mode(PRINT_LED_OFF);
                 print_key_flag = PF_START;
                 break;
               }
-
+    
               card.ls('L');
-
+    
               const uint16_t filecnt = card.countFilesInWorkDir();
               if (!filecnt) {
                 set_print_led_mode(PRINT_LED_ON);
                 print_key_flag = PF_START;
                 break;
               }
-
+    
               card.selectFileByIndex(filecnt);
               card.openAndPrintFile(card.filename);
               break;
-
-            case PF_PAUSE:
+            }
+            case PF_PAUSE: {
               if (!printingIsActive()) break;
-
+    
               set_print_led_mode(PRINT_LED_ON);
               queue.inject_P(PSTR("M25"));
               print_key_flag = PF_RESUME;
               break;
-
-            case PF_RESUME:
+            }
+    
+            case PF_RESUME: {
               if (printingIsActive()) break;
-
+    
               set_print_led_mode(PRINT_LED_BLINK_SLOW);
               queue.inject_P(PSTR("M24"));
               print_key_flag = PF_PAUSE;
               break;
+            }
           }
         }
         else {
