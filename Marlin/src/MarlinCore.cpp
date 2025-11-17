@@ -330,6 +330,9 @@ bool printingIsActive() { return !did_pause_print && printJobOngoing(); }
   static PrintKeyFlag print_key_flag = PF_START;
 
   #if PIN_EXISTS(PRINT_LED)
+    constexpr uint8_t PRINT_LED_ON_STATE  = HIGH;
+    constexpr uint8_t PRINT_LED_OFF_STATE = LOW;
+    
     enum LEDInterval : uint16_t {
       LED_OFF     =    0,
       LED_ON      = 4000,
@@ -365,17 +368,17 @@ bool printingIsActive() { return !did_pause_print && printJobOngoing(); }
     inline void blinkLED(const millis_t ms) {
       static millis_t prev_blink_interval_ms = 0, blink_start_ms = 0;
 
-      if (blink_interval_ms == LED_OFF) { WRITE(PRINT_LED_PIN, HIGH); return; } // OFF
-      if (blink_interval_ms >= LED_ON)  { WRITE(PRINT_LED_PIN,  LOW); return; } // ON
+      if (blink_interval_ms == LED_OFF) { WRITE(PRINT_LED_PIN, PRINT_LED_OFF_STATE); return; }
+      if (blink_interval_ms >= LED_ON)  { WRITE(PRINT_LED_PIN,  PRINT_LED_ON_STATE); return; }
 
       if (prev_blink_interval_ms != blink_interval_ms) {
         prev_blink_interval_ms = blink_interval_ms;
         blink_start_ms = ms;
       }
       if (PENDING(ms, blink_start_ms + blink_interval_ms))
-        WRITE(PRINT_LED_PIN, LOW);
+        WRITE(PRINT_LED_PIN, PRINT_LED_ON_STATE);
       else if (PENDING(ms, blink_start_ms + 2 * blink_interval_ms))
-        WRITE(PRINT_LED_PIN, HIGH);
+        WRITE(PRINT_LED_PIN, PRINT_LED_OFF_STATE);
       else
         blink_start_ms = ms;
     }
@@ -602,7 +605,7 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
             case PF_PAUSE: {
               if (!printingIsActive()) break;
     
-              blink_interval_ms = LED_ON;
+              set_print_led_mode(PRINT_LED_ON);
               queue.inject_P(PSTR("M25"));
               print_key_flag = PF_RESUME;
               break;
@@ -611,7 +614,7 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
             case PF_RESUME: {
               if (printingIsActive()) break;
     
-              blink_interval_ms = LED_BLINK_2;
+              set_print_led_mode(PRINT_LED_BLINK_SLOW);
               queue.inject_P(PSTR("M24"));
               print_key_flag = PF_PAUSE;
               break;
@@ -620,18 +623,18 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
         }
         else {
           if (print_key_flag == PF_START && !printingIsActive()) {
-            blink_interval_ms = LED_ON;
+            set_print_led_mode(PRINT_LED_ON);
             queue.inject_P(PSTR("G91\nG0 Z10 F600\nG90"));
           }
           else {
             card.abortFilePrintSoon();
-            blink_interval_ms = LED_OFF;
+            set_print_led_mode(PRINT_LED_OFF);
           }
 
           planner.synchronize();
           TERN_(HAS_STEPPER_RESET, disableStepperDrivers());
           print_key_flag = PF_START;
-          blink_interval_ms = LED_ON;
+          set_print_led_mode(PRINT_LED_ON);
         }
         break;
     }
@@ -1611,7 +1614,7 @@ void setup() {
   #if ENABLED(SDSUPPORT) && PIN_EXISTS(BTN_PRINT)
     SET_INPUT_PULLUP(BTN_PRINT_PIN);
     #if PIN_EXISTS(PRINT_LED)
-      OUT_WRITE(PRINT_LED_PIN, LOW);
+      OUT_WRITE(PRINT_LED_PIN, PRINT_LED_OFF_STATE);
       set_print_led_mode(PRINT_LED_ON);
     #endif
   #endif
