@@ -318,6 +318,55 @@ bool printJobOngoing() { return print_job_timer.isRunning() || IS_SD_PRINTING();
  */
 bool printingIsActive() { return !did_pause_print && printJobOngoing(); }
 
+#if ENABLED(SDSUPPORT) && PIN_EXISTS(BTN_PRINT)
+  enum PrintKeyStatus : uint8_t { KS_IDLE, KS_PRESS, KS_PROCEED };
+  enum PrintKeyFlag : uint8_t { PF_START, PF_PAUSE, PF_RESUME };
+
+  constexpr millis_t BTN_PRINT_DEBOUNCE_MS = 50;
+  constexpr millis_t BTN_PRINT_SHORT_MS    = 1200;
+
+  static millis_t print_key_time; // = 0
+  static PrintKeyStatus print_key_status = KS_IDLE;
+  static PrintKeyFlag print_key_flag = PF_START;
+
+  #if PIN_EXISTS(PRINT_LED)
+    constexpr millis_t PRINT_LED_OFF         = 0;
+    constexpr millis_t PRINT_LED_ON          = 1;
+    constexpr millis_t PRINT_LED_BLINK_SLOW  = 1000;
+
+    static millis_t print_led_mode = PRINT_LED_ON;
+    static millis_t print_led_next_toggle_ms;
+    static bool print_led_state = true;
+
+    inline void set_print_led_mode(const millis_t mode) {
+      print_led_mode = mode;
+      if (mode <= PRINT_LED_ON) {
+        print_led_state = mode == PRINT_LED_ON;
+        OUT_WRITE(PRINT_LED_PIN, print_led_state);
+      }
+      else {
+        print_led_next_toggle_ms = millis() + mode;
+      }
+    }
+
+    inline void update_print_led(const millis_t ms) {
+      if (print_led_mode <= PRINT_LED_ON) return;
+      if (ELAPSED(ms, print_led_next_toggle_ms)) {
+        print_led_state = !print_led_state;
+        print_led_next_toggle_ms = ms + print_led_mode;
+        WRITE(PRINT_LED_PIN, print_led_state);
+      }
+    }
+  #else
+    constexpr millis_t PRINT_LED_OFF        = 0;
+    constexpr millis_t PRINT_LED_ON         = 0;
+    constexpr millis_t PRINT_LED_BLINK_SLOW = 0;
+
+    inline void set_print_led_mode(const millis_t) {}
+    inline void update_print_led(const millis_t) {}
+  #endif
+#endif
+
 /**
  * Printing is paused according to SD or host indicators
  */
@@ -478,6 +527,93 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
         queue.inject_P(G28_STR);
       }
     }
+  #endif
+
+  #if ENABLED(SDSUPPORT) && PIN_EXISTS(BTN_PRINT)
+    const bool print_button_pressed = !READ(BTN_PRINT_PIN);
+
+    switch (print_key_status) {
+      case KS_IDLE:
+        if (print_button_pressed) {
+          print_key_time = ms;
+          print_key_status = KS_PRESS;
+        }
+        break;
+
+      case KS_PRESS:
+        if (ELAPSED(ms, print_key_time + BTN_PRINT_DEBOUNCE_MS))
+          print_key_status = print_button_pressed ? KS_PROCEED : KS_IDLE;
+        break;
+
+      case KS_PROCEED:
+        if (print_button_pressed) break;
+
+        print_key_status = KS_IDLE;
+
+        if (PENDING(ms, print_key_time + BTN_PRINT_SHORT_MS - BTN_PRINT_DEBOUNCE_MS)) {
+          switch (print_key_flag) {
+            case PF_START:
+              if (printingIsActive()) break;
+
+              set_print_led_mode(PRINT_LED_BLINK_SLOW);
+              print_key_flag = PF_PAUSE;
+
+              card.mount();
+              if (!card.isMounted()) {
+                set_print_led_mode(PRINT_LED_OFF);
+                print_key_flag = PF_START;
+                break;
+              }
+
+              card.ls('L');
+
+              const uint16_t filecnt = card.countFilesInWorkDir();
+              if (!filecnt) {
+                set_print_led_mode(PRINT_LED_ON);
+                print_key_flag = PF_START;
+                break;
+              }
+
+              card.selectFileByIndex(filecnt);
+              card.openAndPrintFile(card.filename);
+              break;
+
+            case PF_PAUSE:
+              if (!printingIsActive()) break;
+
+              set_print_led_mode(PRINT_LED_ON);
+              queue.inject_P(PSTR("M25"));
+              print_key_flag = PF_RESUME;
+              break;
+
+            case PF_RESUME:
+              if (printingIsActive()) break;
+
+              set_print_led_mode(PRINT_LED_BLINK_SLOW);
+              queue.inject_P(PSTR("M24"));
+              print_key_flag = PF_PAUSE;
+              break;
+          }
+        }
+        else {
+          if (print_key_flag == PF_START && !printingIsActive()) {
+            set_print_led_mode(PRINT_LED_ON);
+            queue.inject_P(PSTR("G91\nG0 Z10 F600\nG90"));
+          }
+          else {
+            card.abortFilePrintSoon();
+            set_print_led_mode(PRINT_LED_OFF);
+          }
+
+          planner.synchronize();
+          TERN_(HAS_STEPPER_RESET, disableStepperDrivers());
+          print_key_flag = PF_START;
+          set_print_led_mode(PRINT_LED_ON);
+        }
+        break;
+    }
+
+    update_print_led(ms);
   #endif
 
   #if ENABLED(CUSTOM_USER_BUTTONS)
@@ -1446,6 +1582,14 @@ void setup() {
     #endif
     #if HAS_CUSTOM_USER_BUTTON(25)
       INIT_CUSTOM_USER_BUTTON_PIN(25);
+    #endif
+  #endif
+
+  #if ENABLED(SDSUPPORT) && PIN_EXISTS(BTN_PRINT)
+    SET_INPUT_PULLUP(BTN_PRINT_PIN);
+    #if PIN_EXISTS(PRINT_LED)
+      OUT_WRITE(PRINT_LED_PIN, HIGH);
+      set_print_led_mode(PRINT_LED_ON);
     #endif
   #endif
 

@@ -69,6 +69,13 @@
 #define E1_DIAG_PIN                         PE7
 #endif
 
+#ifndef HOME_PIN
+  #define HOME_PIN                            E1_DIAG_PIN
+#endif
+
+#define BTN_PRINT_PIN                         PA6
+#define PRINT_LED_PIN                         PA5
+
 //#define X_STOP_PIN                    X_DIAG_PIN
 //#define Y_STOP_PIN                    Y_DIAG_PIN
 //#define Z_MIN_PIN                     Z_DIAG_PIN
