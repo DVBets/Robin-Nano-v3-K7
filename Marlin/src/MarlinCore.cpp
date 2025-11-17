@@ -342,7 +342,25 @@ bool printingIsActive() { return !did_pause_print && printJobOngoing(); }
       LED_BLINK_6 =  150,
       LED_BLINK_7 =   50
     };
+
     static uint16_t blink_interval_ms = LED_ON;   // Status LED on Start button
+
+    enum PrintLEDMode : uint8_t {
+      PRINT_LED_OFF,
+      PRINT_LED_ON,
+      PRINT_LED_BLINK_SLOW,
+      PRINT_LED_BLINK_FAST
+    };
+
+    inline void set_print_led_mode(const PrintLEDMode mode) {
+      switch (mode) {
+        default:
+        case PRINT_LED_OFF:        blink_interval_ms = LED_OFF;     break;
+        case PRINT_LED_ON:         blink_interval_ms = LED_ON;      break;
+        case PRINT_LED_BLINK_SLOW: blink_interval_ms = LED_BLINK_2; break;
+        case PRINT_LED_BLINK_FAST: blink_interval_ms = LED_BLINK_5; break;
+      }
+    }
 
     inline void blinkLED(const millis_t ms) {
       static millis_t prev_blink_interval_ms = 0, blink_start_ms = 0;
@@ -359,12 +377,14 @@ bool printingIsActive() { return !did_pause_print && printJobOngoing(); }
       else if (PENDING(ms, blink_start_ms + 2 * blink_interval_ms))
         WRITE(PRINT_LED_PIN, HIGH);
       else
-        blink_start_ms = ms;      
+        blink_start_ms = ms;
     }
   #else
-    enum LEDInterval : uint16_t { LED_OFF = 0, LED_ON = 0, LED_BLINK_2 = 0 };
+    enum LEDInterval : uint16_t { LED_OFF = 0, LED_ON = 0, LED_BLINK_2 = 0, LED_BLINK_5 = 0 };
+    enum PrintLEDMode : uint8_t { PRINT_LED_OFF, PRINT_LED_ON, PRINT_LED_BLINK_SLOW, PRINT_LED_BLINK_FAST };
     static uint16_t blink_interval_ms = LED_OFF;
     inline void blinkLED(const millis_t) {}
+    inline void set_print_led_mode(const PrintLEDMode) {}
   #endif
 #endif
 
