@@ -1612,6 +1612,7 @@ void setup() {
     SET_INPUT_PULLUP(BTN_PRINT_PIN);
     #if PIN_EXISTS(PRINT_LED)
       OUT_WRITE(PRINT_LED_PIN, LOW);
+      set_print_led_mode(PRINT_LED_ON);
     #endif
   #endif
 
