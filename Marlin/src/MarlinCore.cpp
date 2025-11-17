@@ -330,40 +330,41 @@ bool printingIsActive() { return !did_pause_print && printJobOngoing(); }
   static PrintKeyFlag print_key_flag = PF_START;
 
   #if PIN_EXISTS(PRINT_LED)
-    constexpr millis_t PRINT_LED_OFF         = 0;
-    constexpr millis_t PRINT_LED_ON          = 1;
-    constexpr millis_t PRINT_LED_BLINK_SLOW  = 1000;
+    enum LEDInterval : uint16_t {
+      LED_OFF     =    0,
+      LED_ON      = 4000,
+      LED_BLINK_0 = 2500,
+      LED_BLINK_1 = 1500,
+      LED_BLINK_2 = 1000,
+      LED_BLINK_3 =  800,
+      LED_BLINK_4 =  500,
+      LED_BLINK_5 =  300,
+      LED_BLINK_6 =  150,
+      LED_BLINK_7 =   50
+    };
+    static uint16_t blink_interval_ms = LED_ON;   // Status LED on Start button
 
-    static millis_t print_led_mode = PRINT_LED_ON;
-    static millis_t print_led_next_toggle_ms;
-    static bool print_led_state = true;
+    inline void blinkLED(const millis_t ms) {
+      static millis_t prev_blink_interval_ms = 0, blink_start_ms = 0;
 
-    inline void set_print_led_mode(const millis_t mode) {
-      print_led_mode = mode;
-      if (mode <= PRINT_LED_ON) {
-        print_led_state = mode == PRINT_LED_ON;
-        OUT_WRITE(PRINT_LED_PIN, print_led_state);
-      }
-      else {
-        print_led_next_toggle_ms = millis() + mode;
-      }
-    }
+      if (blink_interval_ms == LED_OFF) { WRITE(PRINT_LED_PIN, HIGH); return; } // OFF
+      if (blink_interval_ms >= LED_ON)  { WRITE(PRINT_LED_PIN,  LOW); return; } // ON
 
-    inline void update_print_led(const millis_t ms) {
-      if (print_led_mode <= PRINT_LED_ON) return;
-      if (ELAPSED(ms, print_led_next_toggle_ms)) {
-        print_led_state = !print_led_state;
-        print_led_next_toggle_ms = ms + print_led_mode;
-        WRITE(PRINT_LED_PIN, print_led_state);
+      if (prev_blink_interval_ms != blink_interval_ms) {
+        prev_blink_interval_ms = blink_interval_ms;
+        blink_start_ms = ms;
       }
+      if (PENDING(ms, blink_start_ms + blink_interval_ms))
+        WRITE(PRINT_LED_PIN, LOW);
+      else if (PENDING(ms, blink_start_ms + 2 * blink_interval_ms))
+        WRITE(PRINT_LED_PIN, HIGH);
+      else
+        blink_start_ms = ms;      
     }
   #else
-    constexpr millis_t PRINT_LED_OFF        = 0;
-    constexpr millis_t PRINT_LED_ON         = 0;
-    constexpr millis_t PRINT_LED_BLINK_SLOW = 0;
-
-    inline void set_print_led_mode(const millis_t) {}
-    inline void update_print_led(const millis_t) {}
+    enum LEDInterval : uint16_t { LED_OFF = 0, LED_ON = 0, LED_BLINK_2 = 0 };
+    static uint16_t blink_interval_ms = LED_OFF;
+    inline void blinkLED(const millis_t) {}
   #endif
 #endif
 
@@ -581,7 +582,7 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
             case PF_PAUSE: {
               if (!printingIsActive()) break;
     
-              set_print_led_mode(PRINT_LED_ON);
+              blink_interval_ms = LED_ON;
               queue.inject_P(PSTR("M25"));
               print_key_flag = PF_RESUME;
               break;
@@ -590,7 +591,7 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
             case PF_RESUME: {
               if (printingIsActive()) break;
     
-              set_print_led_mode(PRINT_LED_BLINK_SLOW);
+              blink_interval_ms = LED_BLINK_2;
               queue.inject_P(PSTR("M24"));
               print_key_flag = PF_PAUSE;
               break;
@@ -599,23 +600,23 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
         }
         else {
           if (print_key_flag == PF_START && !printingIsActive()) {
-            set_print_led_mode(PRINT_LED_ON);
+            blink_interval_ms = LED_ON;
             queue.inject_P(PSTR("G91\nG0 Z10 F600\nG90"));
           }
           else {
             card.abortFilePrintSoon();
-            set_print_led_mode(PRINT_LED_OFF);
+            blink_interval_ms = LED_OFF;
           }
 
           planner.synchronize();
           TERN_(HAS_STEPPER_RESET, disableStepperDrivers());
           print_key_flag = PF_START;
-          set_print_led_mode(PRINT_LED_ON);
+          blink_interval_ms = LED_ON;
         }
         break;
     }
 
-    update_print_led(ms);
+    blinkLED(ms);
   #endif
 
   #if ENABLED(CUSTOM_USER_BUTTONS)
@@ -1590,8 +1591,7 @@ void setup() {
   #if ENABLED(SDSUPPORT) && PIN_EXISTS(BTN_PRINT)
     SET_INPUT_PULLUP(BTN_PRINT_PIN);
     #if PIN_EXISTS(PRINT_LED)
-      OUT_WRITE(PRINT_LED_PIN, HIGH);
-      set_print_led_mode(PRINT_LED_ON);
+      OUT_WRITE(PRINT_LED_PIN, LOW);
     #endif
   #endif
 
