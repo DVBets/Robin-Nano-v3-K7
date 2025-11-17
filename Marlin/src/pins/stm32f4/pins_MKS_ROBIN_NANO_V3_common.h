@@ -66,11 +66,11 @@
 #endif
 
 #ifndef E1_DIAG_PIN
-#define E1_DIAG_PIN                         PE7
+  #define E1_DIAG_PIN                         PE7
 #endif
 
 #ifndef HOME_PIN
-  #define HOME_PIN                            E1_DIAG_PIN
+  #define HOME_PIN                            PE8  // Dedicated Home button input 
 #endif
 
 #define BTN_PRINT_PIN                         PA6
