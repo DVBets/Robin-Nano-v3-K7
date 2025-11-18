@@ -517,7 +517,7 @@
 #define TEMP_SENSOR_BOARD 0
 #define TEMP_SENSOR_REDUNDANT 0
 
-#define STARTUP_COMMANDS "G28"
+//#define STARTUP_COMMANDS "G28"
 
 // Dummy thermistor constant temperature readings, for use with 998 and 999
 #define DUMMY_THERMISTOR_998_VALUE  25

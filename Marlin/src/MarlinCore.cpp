@@ -544,12 +544,18 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
     // Handle a standalone HOME button
     constexpr millis_t HOME_DEBOUNCE_DELAY = 1000UL;
     static millis_t next_home_key_ms; // = 0
-    if (!IS_SD_PRINTING() && !READ(HOME_PIN)) { // HOME_PIN goes LOW when pressed
-      if (ELAPSED(ms, next_home_key_ms)) {
-        next_home_key_ms = ms + HOME_DEBOUNCE_DELAY;
-        LCD_MESSAGEPGM(MSG_AUTO_HOME);
-        queue.inject_P(G28_STR);
-      }
+    static bool home_key_is_down; // = false
+    const bool home_key_pressed = !READ(HOME_PIN); // LOW when pressed
+
+    if (!IS_SD_PRINTING() && home_key_pressed && !home_key_is_down && ELAPSED(ms, next_home_key_ms)) {
+      home_key_is_down = true;
+      next_home_key_ms = ms + HOME_DEBOUNCE_DELAY;
+      LCD_MESSAGEPGM(MSG_AUTO_HOME);
+      queue.inject_P(G28_STR);
+    }
+    else if (!home_key_pressed && home_key_is_down && ELAPSED(ms, next_home_key_ms)) {
+      home_key_is_down = false;
+      next_home_key_ms = ms + HOME_DEBOUNCE_DELAY;
     }
   #endif
 
