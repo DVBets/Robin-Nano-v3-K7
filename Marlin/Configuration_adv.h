@@ -3793,31 +3793,55 @@
  * Up to 25 may be defined.
  */
 #define CUSTOM_USER_BUTTONS
-#if ENABLED(CUSTOM_USER_BUTTONS)
-  #define BUTTON1_PIN E1_DIAG_PIN
+#ifdef CUSTOM_USER_BUTTONS
+  #define BUTTON1_PIN              PA4
   #if PIN_EXISTS(BUTTON1)
-    #define BUTTON1_HIT_STATE     LOW       // State of the triggered button. NC=LOW. NO=HIGH.
-    #define BUTTON1_WHEN_PRINTING false     // Button allowed to trigger during printing?
-    #define BUTTON1_GCODE         "G28"
-    #define BUTTON1_DESC          "Homing"  // Optional string to set the LCD status
+    #define BUTTON1_HIT_STATE      LOW
+    #define BUTTON1_WHEN_PRINTING  false
+    #define BUTTON1_GCODE          "M104 S" STRINGIFY(PREHEAT_1_TEMP_HOTEND) "\nM109 S" STRINGIFY(PREHEAT_1_TEMP_HOTEND) "\nG91\nG1 E60 F300\nG90"
+    #define BUTTON1_DESC           "Load filament"
   #endif
 
-  //#define BUTTON2_PIN -1
+  #define BUTTON2_PIN              PE6
   #if PIN_EXISTS(BUTTON2)
-    #define BUTTON2_HIT_STATE     LOW
-    #define BUTTON2_WHEN_PRINTING false
-    #define BUTTON2_GCODE         "M140 S" STRINGIFY(PREHEAT_1_TEMP_BED) "\nM104 S" STRINGIFY(PREHEAT_1_TEMP_HOTEND)
-    #define BUTTON2_DESC          "Preheat for " PREHEAT_1_LABEL
+    #define BUTTON2_HIT_STATE      LOW
+    #define BUTTON2_WHEN_PRINTING  false
+    #define BUTTON2_GCODE          "M104 S" STRINGIFY(PREHEAT_1_TEMP_HOTEND) "\nM109 S" STRINGIFY(PREHEAT_1_TEMP_HOTEND) "\nG91\nG1 E-60 F300\nG90"
+    #define BUTTON2_DESC           "Unload filament"
   #endif
 
   //#define BUTTON3_PIN -1
-  #if PIN_EXISTS(BUTTON3)
-    #define BUTTON3_HIT_STATE     LOW
-    #define BUTTON3_WHEN_PRINTING false
-    #define BUTTON3_GCODE         "M140 S" STRINGIFY(PREHEAT_2_TEMP_BED) "\nM104 S" STRINGIFY(PREHEAT_2_TEMP_HOTEND)
-    #define BUTTON3_DESC          "Preheat for " PREHEAT_2_LABEL
+  #define BUTTON3_PIN              PA13
+    #define BUTTON3_HIT_STATE      LOW
+    #define BUTTON3_WHEN_PRINTING  false
+    #define BUTTON3_GCODE          "G28\nG90\nG0 X10 Y10 Z15 F3000"
+    #define BUTTON3_DESC           "Front-left corner"
   #endif
-#endif
+
+  #define BUTTON4_PIN              PB2
+  #if PIN_EXISTS(BUTTON4)
+    #define BUTTON4_HIT_STATE      LOW
+    #define BUTTON4_WHEN_PRINTING  false
+    #define BUTTON4_GCODE          "G28\nG90\nG0 X90 Y10 Z15 F3000"
+    #define BUTTON4_DESC           "Front-right corner"
+  #endif
+
+  #define BUTTON5_PIN              PA2
+  #if PIN_EXISTS(BUTTON5)
+    #define BUTTON5_HIT_STATE      LOW
+    #define BUTTON5_WHEN_PRINTING  false
+    #define BUTTON5_GCODE          "G28\nG90\nG0 X10 Y90 Z15 F3000"
+    #define BUTTON5_DESC           "Back-left corner"
+  #endif
+
+  #define BUTTON6_PIN              PA8
+  #if PIN_EXISTS(BUTTON6)
+    #define BUTTON6_HIT_STATE      LOW
+    #define BUTTON6_WHEN_PRINTING  false
+    #define BUTTON6_GCODE          "G28\nG90\nG0 X90 Y90 Z15 F3000"
+    #define BUTTON6_DESC           "Back-right corner"
+  #endif
+#endif // CUSTOM_USER_BUTTONS
 
 /**
  * Host Action Commands

@@ -622,28 +622,18 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
           }
         }
         else {
-          if (print_key_flag == PF_START && !printingIsActive()) {
-            // Run a simple heater and fan self-test to help confirm hardware health when no print is active
-            set_print_led_mode(PRINT_LED_BLINK_FAST);
-            queue.inject_P(PSTR(
-              "M106 P0 S255\n"   // Part-cooling fan full speed
-              "M106 S255\n"      // Hotend/board fan full speed
-              "M104 S150\n"      // Preheat hotend to 150C
-              "G4 S15\n"         // Hold temperature for 15 seconds
-              "M104 S0\n"        // Turn off hotend
-              "M106 P0 S0\n"     // Stop part-cooling fan
-              "M106 S0"          // Stop hotend/board fan
-            ));
-          }
-          else {
-            card.abortFilePrintSoon();
-            set_print_led_mode(PRINT_LED_OFF);
+          const bool actively_printing = printingIsActive();
+
+          if (actively_printing && print_key_flag == PF_PAUSE) {
+            queue.inject_P(PSTR("M25"));
+            print_key_flag = PF_RESUME;
+            set_print_led_mode(PRINT_LED_ON);
           }
 
           planner.synchronize();
-          TERN_(HAS_STEPPER_RESET, disableStepperDrivers());
-          print_key_flag = PF_START;
-          set_print_led_mode(PRINT_LED_ON);
+          queue.inject_P(PSTR("G91\nG0 Z15 F600\nG90"));
+
+          print_key_flag = actively_printing ? print_key_flag : PF_START;
         }
         break;
     }
