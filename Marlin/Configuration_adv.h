@@ -3810,15 +3810,15 @@
     #define BUTTON2_DESC           "Unload filament"
   #endif
 
-  //#define BUTTON3_PIN -1
-  #define BUTTON3_PIN              PA13
+  #define BUTTON3_PIN              PC5
+  #if PIN_EXISTS(BUTTON3)
     #define BUTTON3_HIT_STATE      LOW
     #define BUTTON3_WHEN_PRINTING  false
     #define BUTTON3_GCODE          "G28\nG90\nG0 X10 Y10 Z15 F3000"
     #define BUTTON3_DESC           "Front-left corner"
   #endif
 
-  #define BUTTON4_PIN              PB2
+  #define BUTTON4_PIN              PB13
   #if PIN_EXISTS(BUTTON4)
     #define BUTTON4_HIT_STATE      LOW
     #define BUTTON4_WHEN_PRINTING  false
@@ -3826,7 +3826,7 @@
     #define BUTTON4_DESC           "Front-right corner"
   #endif
 
-  #define BUTTON5_PIN              PA2
+  #define BUTTON5_PIN              PD13
   #if PIN_EXISTS(BUTTON5)
     #define BUTTON5_HIT_STATE      LOW
     #define BUTTON5_WHEN_PRINTING  false
@@ -3834,7 +3834,7 @@
     #define BUTTON5_DESC           "Back-left corner"
   #endif
 
-  #define BUTTON6_PIN              PA8
+  #define BUTTON6_PIN              PC6
   #if PIN_EXISTS(BUTTON6)
     #define BUTTON6_HIT_STATE      LOW
     #define BUTTON6_WHEN_PRINTING  false
