@@ -3794,7 +3794,7 @@
  */
 #define CUSTOM_USER_BUTTONS
 #ifdef CUSTOM_USER_BUTTONS
-  #define BUTTON1_PIN              PA4
+  //#define BUTTON1_PIN              PA4
   #if PIN_EXISTS(BUTTON1)
     #define BUTTON1_HIT_STATE      LOW
     #define BUTTON1_WHEN_PRINTING  false
@@ -3802,7 +3802,7 @@
     #define BUTTON1_DESC           "Load filament"
   #endif
 
-  #define BUTTON2_PIN              PE6
+  //#define BUTTON2_PIN              PE6
   #if PIN_EXISTS(BUTTON2)
     #define BUTTON2_HIT_STATE      LOW
     #define BUTTON2_WHEN_PRINTING  false
@@ -3814,7 +3814,7 @@
   #if PIN_EXISTS(BUTTON3)
     #define BUTTON3_HIT_STATE      LOW
     #define BUTTON3_WHEN_PRINTING  false
-    #define BUTTON3_GCODE          "G28\nG90\nG0 X10 Y10 Z15 F3000"
+    #define BUTTON3_GCODE          "G0 Z5\nG0 X10 Y10\nG0 Z0"
     #define BUTTON3_DESC           "Front-left corner"
   #endif
 
@@ -3822,7 +3822,7 @@
   #if PIN_EXISTS(BUTTON4)
     #define BUTTON4_HIT_STATE      LOW
     #define BUTTON4_WHEN_PRINTING  false
-    #define BUTTON4_GCODE          "G28\nG90\nG0 X90 Y10 Z15 F3000"
+    #define BUTTON4_GCODE          "G0 Z5\nG0 X90 Y10\nG0 Z0"
     #define BUTTON4_DESC           "Front-right corner"
   #endif
 
@@ -3830,7 +3830,7 @@
   #if PIN_EXISTS(BUTTON5)
     #define BUTTON5_HIT_STATE      LOW
     #define BUTTON5_WHEN_PRINTING  false
-    #define BUTTON5_GCODE          "G28\nG90\nG0 X10 Y90 Z15 F3000"
+    #define BUTTON5_GCODE          "G0 Z5\nG0 X10 Y90\nG0 Z0"
     #define BUTTON5_DESC           "Back-left corner"
   #endif
 
@@ -3838,7 +3838,7 @@
   #if PIN_EXISTS(BUTTON6)
     #define BUTTON6_HIT_STATE      LOW
     #define BUTTON6_WHEN_PRINTING  false
-    #define BUTTON6_GCODE          "G28\nG90\nG0 X90 Y90 Z15 F3000"
+    #define BUTTON6_GCODE          "G0 Z5\nG0 X90 Y90\nG0 Z0"
     #define BUTTON6_DESC           "Back-right corner"
   #endif
 #endif // CUSTOM_USER_BUTTONS

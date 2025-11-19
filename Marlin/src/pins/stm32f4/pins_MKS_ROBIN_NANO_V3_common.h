@@ -69,9 +69,9 @@
   #define E1_DIAG_PIN                         PE7
 #endif
 
-#ifndef HOME_PIN
-  #define HOME_PIN                            PE8  // Dedicated Home button input 
-#endif
+//#ifndef HOME_PIN
+//  #define HOME_PIN                            PE8  // Dedicated Home button input 
+//#endif
 
 #define BTN_PRINT_PIN                         PA6
 #define PRINT_LED_PIN                         PA5
