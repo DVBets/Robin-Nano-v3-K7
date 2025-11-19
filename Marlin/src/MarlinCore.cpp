@@ -541,22 +541,26 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
   #endif
 
   #if HAS_HOME
-    // Handle a standalone HOME button
+    // Handle a standalone HOME button and ignore a held (or floating) input until it is released
     constexpr millis_t HOME_DEBOUNCE_DELAY = 1000UL;
     static millis_t next_home_key_ms; // = 0
-    static bool home_key_is_down; // = false
-    const bool home_key_pressed = !READ(HOME_PIN); // LOW when pressed
+    static bool home_key_blocked;     // = false
+    const bool home_button_pressed = !READ(HOME_PIN); // HOME_PIN goes LOW when pressed
 
-    if (!IS_SD_PRINTING() && home_key_pressed && !home_key_is_down && ELAPSED(ms, next_home_key_ms)) {
-      home_key_is_down = true;
-      next_home_key_ms = ms + HOME_DEBOUNCE_DELAY;
-      LCD_MESSAGEPGM(MSG_AUTO_HOME);
-      queue.inject_P(G28_STR);
+    if (!IS_SD_PRINTING()) {
+      if (home_button_pressed && !home_key_blocked && ELAPSED(ms, next_home_key_ms)) {
+        next_home_key_ms = ms + HOME_DEBOUNCE_DELAY;
+        home_key_blocked = true;
+        LCD_MESSAGEPGM(MSG_AUTO_HOME);
+        queue.inject_P(G28_STR);
+      }
+      else if (!home_button_pressed && home_key_blocked) {
+        home_key_blocked = false;
+        next_home_key_ms = ms + HOME_DEBOUNCE_DELAY;
+      }
     }
-    else if (!home_key_pressed && home_key_is_down && ELAPSED(ms, next_home_key_ms)) {
-      home_key_is_down = false;
-      next_home_key_ms = ms + HOME_DEBOUNCE_DELAY;
-    }
+    else if (!home_button_pressed && home_key_blocked)
+      home_key_blocked = false;
   #endif
 
   #if ENABLED(SDSUPPORT) && PIN_EXISTS(BTN_PRINT)
@@ -628,18 +632,10 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
           }
         }
         else {
-          const bool actively_printing = printingIsActive();
-
-          if (actively_printing && print_key_flag == PF_PAUSE) {
-            queue.inject_P(PSTR("M25"));
-            print_key_flag = PF_RESUME;
-            set_print_led_mode(PRINT_LED_ON);
-          }
-
+          // Long press: lift the toolhead for clearance without aborting print state
+          queue.inject_P(PSTR("G91\nG0 Z15 F600\nG90")); // Raise Z by 15mm
           planner.synchronize();
-          queue.inject_P(PSTR("G91\nG0 Z15 F600\nG90"));
-
-          print_key_flag = actively_printing ? print_key_flag : PF_START;
+          set_print_led_mode(PRINT_LED_ON);
         }
         break;
     }
