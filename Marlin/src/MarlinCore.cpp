@@ -328,6 +328,7 @@ bool printingIsActive() { return !did_pause_print && printJobOngoing(); }
   static millis_t print_key_time; // = 0
   static PrintKeyStatus print_key_status = KS_IDLE;
   static PrintKeyFlag print_key_flag = PF_START;
+  static bool print_button_idle_state;
 
   #if PIN_EXISTS(PRINT_LED)
     constexpr uint8_t PRINT_LED_ON_STATE  = HIGH;
@@ -564,7 +565,7 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
   #endif
 
   #if ENABLED(SDSUPPORT) && PIN_EXISTS(BTN_PRINT)
-    const bool print_button_pressed = !READ(BTN_PRINT_PIN);
+    const bool print_button_pressed = READ(BTN_PRINT_PIN) != print_button_idle_state;
 
     switch (print_key_status) {
       case KS_IDLE:
@@ -608,7 +609,8 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
                 break;
               }
     
-              card.selectFileByIndex(filecnt);
+              // Use the last file in the working directory (index is 0-based)
+              card.selectFileByIndex(filecnt - 1);
               card.openAndPrintFile(card.filename);
               break;
             }
@@ -1537,7 +1539,7 @@ void setup() {
       if (BUTTON##N##_HIT_STATE == LOW) SET_INPUT_PULLUP(BUTTON##N##_PIN);      \
       else                               SET_INPUT_PULLDOWN(BUTTON##N##_PIN);   \
     }while(0)
-    
+
     #if HAS_CUSTOM_USER_BUTTON(1)
       INIT_CUSTOM_USER_BUTTON_PIN(1);
     #endif
@@ -1616,7 +1618,9 @@ void setup() {
   #endif
 
   #if ENABLED(SDSUPPORT) && PIN_EXISTS(BTN_PRINT)
-    SET_INPUT_PULLUP(BTN_PRINT_PIN);
+    // Respect the button's hardware pull configuration instead of forcing a pullup
+    SET_INPUT(BTN_PRINT_PIN);
+    print_button_idle_state = READ(BTN_PRINT_PIN);
     #if PIN_EXISTS(PRINT_LED)
       OUT_WRITE(PRINT_LED_PIN, PRINT_LED_OFF_STATE);
       set_print_led_mode(PRINT_LED_ON);
