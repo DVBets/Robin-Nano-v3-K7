@@ -1533,8 +1533,11 @@ void setup() {
   #endif
 
   #if ENABLED(CUSTOM_USER_BUTTONS)
-    #define INIT_CUSTOM_USER_BUTTON_PIN(N) do{ SET_INPUT(BUTTON##N##_PIN); WRITE(BUTTON##N##_PIN, !BUTTON##N##_HIT_STATE); }while(0)
-
+    #define INIT_CUSTOM_USER_BUTTON_PIN(N) do{                                  \
+      if (BUTTON##N##_HIT_STATE == LOW) SET_INPUT_PULLUP(BUTTON##N##_PIN);      \
+      else                               SET_INPUT_PULLDOWN(BUTTON##N##_PIN);   \
+    }while(0)
+    
     #if HAS_CUSTOM_USER_BUTTON(1)
       INIT_CUSTOM_USER_BUTTON_PIN(1);
     #endif
